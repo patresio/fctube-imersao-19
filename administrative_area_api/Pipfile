@@ -4,7 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "5.1.2"
+python-decouple = "3.8"
+dj-database-url = "2.2.0"
 
 [dev-packages]
 
