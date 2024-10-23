@@ -13,24 +13,16 @@
 # Ignore single-character .js files (like a.js, b.js, etc.)
 ?.js
 
-
 node_modules
 
-
 *.log
-
 
 .git
 .gitignore
 
-
-.env
-
-
 # Don't do this!
 Dockerfile
 .dockerignore
-
 
 # Ignore everything
 *
@@ -39,7 +31,6 @@ Dockerfile
 !.dockerignore
 !Dockerfile
 !src/
-
 
 .git
 .vscode

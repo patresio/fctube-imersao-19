@@ -1,8 +1,10 @@
 package converter
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"govideoconverter/internal/rabbitmq"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -11,12 +13,20 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/streadway/amqp"
 )
 
-type VideoConverter struct {}
+type VideoConverter struct {
+	db *sql.DB
+	rabbitmqClient *rabbitmq.RabbitClient
+}
 
-func NewVideoConverter() *VideoConverter {
-	return &VideoConverter{}
+func NewVideoConverter(rabbitmqClient *rabbitmq.RabbitClient, db *sql.DB) *VideoConverter {
+	return &VideoConverter{
+		rabbitmqClient: rabbitmqClient,
+		db: db,
+	}
 }
 
 
@@ -26,11 +36,17 @@ type VideoTask struct {
 	Path string `json:"path"`
 }
 
-func (vc *VideoConverter) Handle(msg []byte) {
+func (vc *VideoConverter) Handle(d amqp.Delivery, confirmationExchange, confirmationKey, confirmationQueue string) {
 	var task VideoTask
-	err := json.Unmarshal(msg, &task)
+	err := json.Unmarshal(d.Body, &task)
 	if err != nil {
 		vc.logError(task, "Failed to unmarshal task", err)
+		return
+	}
+
+	if IsProcessed(vc.db, task.VideoID) {
+		slog.Warn("Video already processed", slog.Int("video_id", task.VideoID))
+		d.Ack(false)
 		return
 	}
 
@@ -38,6 +54,22 @@ func (vc *VideoConverter) Handle(msg []byte) {
 	if err != nil {
 		vc.logError(task, "Failed to process task", err)
 		return
+	}
+
+	err = MarkProcessed(vc.db, task.VideoID)
+	if err != nil {
+		vc.logError(task, "Failed to mark task as processed", err)
+		return
+	}
+	
+	d.Ack(false)
+	slog.Info("Video marked as processed", slog.Int("video_id", task.VideoID))
+
+	confirmationMessage := []byte(fmt.Sprintf(`{"video_id": %d, "path": "%s"}`, task.VideoID, task.Path))
+
+	err = vc.rabbitmqClient.PublishMessage(confirmationExchange, confirmationKey, confirmationQueue, confirmationMessage)
+	if err != nil {
+		slog.Error("Failed to publish confirmation message", slog.String("error", err.Error()))
 	}
 }
 
@@ -89,7 +121,7 @@ func (vc *VideoConverter) logError(task VideoTask, messagem string, err error) {
 
 	slog.Error("Processing error", slog.String("error_details", string(serializedError)))
 
-	// todo: register error on database
+	RegisterError(vc.db, errorData, err)
 }
 
 
