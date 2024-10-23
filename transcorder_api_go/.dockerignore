@@ -1,0 +1,47 @@
+# Ignore all .txt files
+*.txt
+
+# But don't ignore important.txt
+!*important.txt
+
+# Ignore all .log files, no matter where they're located
+**/*.log
+
+# Ignore any directory named temp
+**/temp
+
+# Ignore single-character .js files (like a.js, b.js, etc.)
+?.js
+
+
+node_modules
+
+
+*.log
+
+
+.git
+.gitignore
+
+
+.env
+
+
+# Don't do this!
+Dockerfile
+.dockerignore
+
+
+# Ignore everything
+*
+
+# But don't ignore these files
+!.dockerignore
+!Dockerfile
+!src/
+
+
+.git
+.vscode
+Makefile
+README.md
