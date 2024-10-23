@@ -11,6 +11,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_SSL_MODE=${POSTGRES_SSL_MODE:-disable}
+      # RabbitMQ
       - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
       - CONVERSION_EXCHANGE=${CONVERSION_EXCHANGE:-conversion_exchange}
       - CONVERSION_QUEUE=${CONVERSION_QUEUE:-video_conversion_queue}

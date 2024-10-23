@@ -24,11 +24,13 @@ func connectPostgres() (*sql.DB, error) {
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		slog.Error("Error connecting to database", slog.String("conn_str", connStr))
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
 		slog.Error("Error pinging database", slog.String("conn_str", connStr))
+		return nil, err
 	}
 	
 	slog.Info("Connected to database successfully")
