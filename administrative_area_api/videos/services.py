@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from django.db import IntegrityError, transaction
 
 from videos.models import Video, VideoMedia
+from videos.rabbitmq import create_rabbitmq_connection
 
 
 @dataclass
@@ -82,7 +83,7 @@ class VideoService:
             video_media.status = VideoMedia.Status.PROCESS_STARTED
             video_media.save()
 
-            # rabbitmq
+            self.__produce_message(video_id, video_media.video_path, "chunks")
 
         except Video.video_media.RelatedObjectDoesNotExist:
             raise VideoMediaNotExistsException("Upload not started.")
@@ -115,6 +116,18 @@ class VideoService:
         video_media.video_path = video_path
         video_media.status = VideoMedia.Status.PROCESS_FINISHED
         video_media.save()
+
+    def __produce_message(self, video_id: int, path: str, routing_key: str) -> None:
+        with create_rabbitmq_connection() as conn:
+            producer = conn.Producer(serializer="json")
+            producer.publish(
+                {
+                    "video_id": video_id,
+                    "path": path,
+                },
+                exchange="conversion_exchange",
+                routing_key=routing_key,
+            )
 
 
 def create_video_service_factory() -> VideoService:
