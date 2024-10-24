@@ -3,58 +3,64 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - DEBUG=${DEBUG:-true}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-converter}
-      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_SSL_MODE=${POSTGRES_SSL_MODE:-disable}
-      # RabbitMQ
-      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
-      - CONVERSION_EXCHANGE=${CONVERSION_EXCHANGE:-conversion_exchange}
-      - CONVERSION_QUEUE=${CONVERSION_QUEUE:-video_conversion_queue}
-      - CONVERSION_KEY=${CONVERSION_KEY:-conversion}
-      - CONFIRMATION_KEY=${CONFIRMATION_KEY:-finish-conversion}
-      - CONFIRMATION_QUEUE=${CONFIRMATION_QUEUE:-finish_conversion_queue}
     volumes:
-      - .:/app
-      - external-storage:/media/uploads
+      - .:/app # Mount the local app directory for live development
+      - external-storage:/media/uploads # Mount external storage volume
     tty: true
     stdin_open: true
+    ports:
+      - '8080:8080'
+    environment:
+      DEBUG: 'true'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'converter'
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_SSL_MODE: 'disable'
+      RABBITMQ_URL: 'amqp://guest:guest@rabbitmq:5672/'
+      CONVERSION_EXCHANGE: 'conversion_exchange'
+      CONVERSION_KEY: 'conversion'
+      CONFIRMATION_KEY: 'finish-conversion'
+      VIDEO_ROOT_PATH: '/media/uploads'
+      QUEUE_NAME: 'video_conversion_queue'
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: 'guest'
+      RABBITMQ_DEFAULT_PASS: 'guest'
 
   postgres:
-    image: postgres:15.8-alpine3.20
+    image: postgres:13
     ports:
-      - 5433:5432
+      - '5432:5432'
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-converter}
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'converter'
     volumes:
       - .docker/postgres:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4:8.11.0
-    container_name: pgadmin4_container
-    restart: always
-    ports:
-      - 8888:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@user.com}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-password}
-    depends_on:
-      - postgres
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin4_container
+  #   restart: always
+  #   ports:
+  #     - '8888:80'
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: teste@teste.com
+  #     PGADMIN_DEFAULT_PASSWORD: teste
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - 5672:5672
-      - 15672:15672
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+  adminer:
+    image: adminer
+    ports: 
+      - 8081:8080
 
 volumes:
   external-storage:

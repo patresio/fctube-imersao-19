@@ -1,4 +1,15 @@
 services:
+  
+  django:
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/home/my-user/app
+      - external-storage:/media/uploads
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
   db:
     image: postgres:15.8-alpine3.20
     ports:
@@ -7,13 +18,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-mydb}
+    volumes:
+      - .docker/postgres/data:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4:8.11.0
-    ports:
-      - 5050:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-4QpR5@example.com}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-password}
-    depends_on:
-      - db
+volumes:
+  external-storage:
+    external: true

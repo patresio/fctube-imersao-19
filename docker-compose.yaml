@@ -1,0 +1,3 @@
+include:
+  - ./transcorder_api_go/docker-compose.yaml
+  - ./administrative_area_api/docker-compose.yaml
