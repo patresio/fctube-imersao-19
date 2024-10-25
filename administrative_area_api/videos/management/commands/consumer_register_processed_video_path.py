@@ -6,12 +6,12 @@ from videos.services import create_video_service_factory
 
 
 class Command(BaseCommand):
-    help = "Upload chunks to external storage"
+    help = "Register processed video path"
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS("Starting consumer ..."))
         exchange = Exchange("conversion_exchange", type="direct", auto_delete=True)
-        queue = Queue("chunks", exchange, routing_key="chunks")
+        queue = Queue("finish-conversion", exchange, routing_key="finish-conversion")
 
         with create_rabbitmq_connection() as conn:
             with conn.Consumer(queue, callbacks=[self.process_message]):
@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
     def process_message(self, body, message):
         self.stdout.write(self.style.SUCCESS(f"Received message: {body}"))
-        create_video_service_factory().upload_chunks_to_external_storage(
-            body["video_id"]
+        create_video_service_factory().register_processed_video_path(
+            body["video_id"], body["path"]
         )
         self.stdout.write(
             self.style.SUCCESS(f"Deleting message: {message.delivery_tag}")

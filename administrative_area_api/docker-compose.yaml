@@ -1,5 +1,4 @@
 services:
-  
   django:
     build: .
     ports:
@@ -13,11 +12,11 @@ services:
   db:
     image: postgres:15.8-alpine3.20
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-mydb}
+      - POSTGRES_DB=${POSTGRES_DB_1:-mydb}
     volumes:
       - .docker/postgres/data:/var/lib/postgresql/data
 
