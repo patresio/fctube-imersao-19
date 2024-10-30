@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "videos",
 ]
 
@@ -123,3 +124,10 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+MEDIA_URL = config("ASSETS_URL") + "/"
+
+MEDIA_ROOT = "/media/uploads/"
+
+RABBITMQ_URL = config("RABBITMQ_URL")
+ASSETS_URL = config("ASSETS_URL")

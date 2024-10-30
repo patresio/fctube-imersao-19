@@ -1,13 +1,26 @@
+import hashlib
+import os
+import time
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+
+def random_filename(instance, filename):
+    # Extrai a extensão do arquivo
+    ext = filename.split(".")[-1]
+
+    # Usa o timestamp atual e o nome original para gerar o hash simples
+    hash_object = hashlib.md5(f"{filename}{time.time()}".encode("utf-8"))
+    return f"{hash_object.hexdigest()}.{ext}"
 
 
 # Create your models here.
 class Video(models.Model):
     title = models.CharField(max_length=100, unique=True, verbose_name="Título")
     description = models.TextField(verbose_name="Descrição")
-    thumbnail = models.ImageField(upload_to="thumbnails/", verbose_name="Thumbnail")
+    thumbnail = models.ImageField(upload_to=random_filename, verbose_name="Thumbnail")
     slug = models.SlugField(unique=True)
     published_at = models.DateTimeField(
         verbose_name="Publicado em", null=True, editable=False
