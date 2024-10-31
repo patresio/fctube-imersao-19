@@ -16,10 +16,10 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB_1:-mydb}
+      - POSTGRES_DB=${POSTGRES_DB_1:-django}
     volumes:
       - .docker/postgres/data:/var/lib/postgresql/data
-  
+
   nginx:
     image: nginx:1.19.10-alpine
     ports:

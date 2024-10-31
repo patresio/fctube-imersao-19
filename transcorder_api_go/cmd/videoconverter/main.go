@@ -23,7 +23,7 @@ func connectPostgres() (*sql.DB, error) {
 	user := getEnvOrDefault("POSTGRES_USER", "user")
 	password := getEnvOrDefault("POSTGRES_PASSWORD", "password")
 	dbname := getEnvOrDefault("POSTGRES_DB", "converter")
-	host := getEnvOrDefault("POSTGRES_HOST", "host.docker.internal")
+	host := getEnvOrDefault("POSTGRES_HOST", "postgres")
 	sslmode := getEnvOrDefault("POSTGRES_SSL_MODE", "disable")
 
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s sslmode=%s", user, password, dbname, host, sslmode)

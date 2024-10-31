@@ -9,8 +9,6 @@ export async function getVideos(search: string): Promise<VideoModel[]> {
   const url = search
     ? `http://localhost:8000/api/videos/?q=${search}`
     : `http://localhost:8000/api/videos`
-  // ? `${process.env.DJANGO_API_URL}/videos?q=${search}`
-  // : `${process.env.DJANGO_API_URL}/videos`
   const response = await fetch(url, {
     cache: 'no-cache'
   })

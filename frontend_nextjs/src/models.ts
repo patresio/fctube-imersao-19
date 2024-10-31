@@ -7,10 +7,5 @@ export type VideoModel = {
   likes: number
   views: number
   tags: string[]
-  // author: {
-  //   id: number
-  //   name: string
-  //   avatar: string
-  // }
   video_url: string
 }

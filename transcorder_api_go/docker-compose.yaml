@@ -37,7 +37,7 @@ services:
       RABBITMQ_DEFAULT_PASS: 'guest'
 
   postgres:
-    image: postgres:13
+    image: postgres:15.8-alpine3.20
     ports:
       - '5432:5432'
     environment:
@@ -46,6 +46,7 @@ services:
       POSTGRES_DB: 'converter'
     volumes:
       - .docker/postgres:/var/lib/postgresql/data
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
 
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -59,7 +60,7 @@ services:
 
   adminer:
     image: adminer
-    ports: 
+    ports:
       - 8081:8080
 
 volumes:

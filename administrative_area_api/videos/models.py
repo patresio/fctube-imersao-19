@@ -1,5 +1,4 @@
 import hashlib
-import os
 import time
 
 from django.core.exceptions import ValidationError
